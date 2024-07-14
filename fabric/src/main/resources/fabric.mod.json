@@ -1,0 +1,29 @@
+{
+  "schemaVersion": 1,
+  "id": "mediaplayer",
+  "version": "${version}",
+  "name": "MediaPlayer",
+  "description": "",
+  "authors": [],
+  "contact": {},
+  "license": "GNU LGPL 3.0",
+  "icon": "icon.png",
+  "accessWidener": "META-INF/aw2.accesswidener",
+  "environment": "*",
+  "entrypoints": {
+    "main": [
+      "net.hacker.mediaplayer.fabric.MediaPlayerFabric"
+    ],
+    "client": [
+      "net.hacker.mediaplayer.fabric.Client"
+    ]
+  },
+  "mixins": [
+    "mediaplayer.mixins.json",
+    "mediaplayer-common.mixins.json"
+  ],
+  "depends": {
+    "fabricloader": ">=0.15.11",
+    "minecraft": ">=1.21"
+  }
+}

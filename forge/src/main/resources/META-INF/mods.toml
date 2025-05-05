@@ -18,16 +18,18 @@ config = "mediaplayer-common.mixins.json"
 config = "mediaplayer.mixins.json"
 
 [[dependencies.mediaplayer]]
-modId = "neoforge"
+modId = "forge"
 type = "required"
-versionRange = "[21,)"
+mandatory = true
+versionRange = "[47,)"
 ordering = "NONE"
 side = "BOTH"
 
 [[dependencies.mediaplayer]]
 modId = "minecraft"
 type = "required"
-versionRange = "[1.21,1.22)"
+mandatory = true
+versionRange = "[1.20.1,1.21)"
 ordering = "NONE"
 side = "BOTH"
 

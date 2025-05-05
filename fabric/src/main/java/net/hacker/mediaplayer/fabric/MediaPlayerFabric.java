@@ -16,6 +16,6 @@ public class MediaPlayerFabric implements ModInitializer {
     @Override
     public void onInitialize() {
         MediaPlayer.audioFactory = AudioInstance::new;
-        video = Registry.register(BuiltInRegistries.ENTITY_TYPE, ResourceLocation.fromNamespaceAndPath(MOD_ID, "video"), VideoEntity.type());
+        video = Registry.register(BuiltInRegistries.ENTITY_TYPE, new ResourceLocation(MOD_ID, "video"), VideoEntity.type());
     }
 }

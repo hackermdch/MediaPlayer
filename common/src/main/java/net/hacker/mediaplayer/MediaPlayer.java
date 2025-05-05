@@ -3,6 +3,8 @@ package net.hacker.mediaplayer;
 import net.minecraft.client.resources.sounds.SoundInstance;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.Entity;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.FileOutputStream;
 import java.lang.ref.Cleaner;
@@ -13,6 +15,7 @@ public final class MediaPlayer {
     public static final String MOD_ID = "mediaplayer";
     static final Cleaner cleaner = Cleaner.create();
     public static BiFunction<Audio, Entity, SoundInstance> audioFactory;
+    public static final Logger LOGGER = LoggerFactory.getLogger(MediaPlayer.class);
 
     static {
         if (!System.getProperty("os.name").toLowerCase().contains("windows"))

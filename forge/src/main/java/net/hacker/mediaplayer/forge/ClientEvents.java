@@ -2,24 +2,24 @@ package net.hacker.mediaplayer.forge;
 
 import net.hacker.mediaplayer.*;
 import net.minecraft.client.Minecraft;
-import net.neoforged.api.distmarker.Dist;
-import net.neoforged.bus.api.SubscribeEvent;
-import net.neoforged.fml.common.EventBusSubscriber;
-import net.neoforged.neoforge.client.event.EntityRenderersEvent;
-import net.neoforged.neoforge.client.event.RegisterClientCommandsEvent;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.client.event.EntityRenderersEvent;
+import net.minecraftforge.client.event.RegisterClientCommandsEvent;
+import net.minecraftforge.eventbus.api.SubscribeEvent;
+import net.minecraftforge.fml.common.Mod;
 
 import static net.hacker.mediaplayer.MediaPlayer.MOD_ID;
 import static net.hacker.mediaplayer.MediaPlayer.getText;
 import static net.minecraft.commands.Commands.literal;
 
-@EventBusSubscriber(modid = MOD_ID, bus = EventBusSubscriber.Bus.MOD, value = Dist.CLIENT)
+@Mod.EventBusSubscriber(modid = MOD_ID, bus = Mod.EventBusSubscriber.Bus.MOD, value = Dist.CLIENT)
 public class ClientEvents {
     @SubscribeEvent
     private static void onRegisterEntityRenderer(EntityRenderersEvent.RegisterRenderers event) {
         event.registerEntityRenderer(MediaPlayerForge.video.get(), VideoEntityRenderer::new);
     }
 
-    @EventBusSubscriber(modid = MOD_ID, bus = EventBusSubscriber.Bus.GAME, value = Dist.CLIENT)
+    @Mod.EventBusSubscriber(modid = MOD_ID, bus = Mod.EventBusSubscriber.Bus.FORGE, value = Dist.CLIENT)
     private static class Forge {
         @SubscribeEvent
         private static void onRegisterClientCommands(RegisterClientCommandsEvent event) {

@@ -40,7 +40,7 @@ public class AudioInstance extends AbstractTickableSoundInstance implements Soun
 
     @Override
     public WeighedSoundEvents resolve(@NotNull SoundManager manager) {
-        sound = new Sound(getLocation(), DEFAULT_FLOAT, DEFAULT_FLOAT, 1, Sound.Type.FILE, true, false, 32);
+        sound = new Sound(getLocation().toString(), DEFAULT_FLOAT, DEFAULT_FLOAT, 1, Sound.Type.FILE, true, false, 32);
         return SoundManager.INTENTIONALLY_EMPTY_SOUND_EVENT;
     }
 

@@ -15,14 +15,14 @@ import static net.minecraft.commands.Commands.literal;
 @Mod.EventBusSubscriber(modid = MOD_ID, bus = Mod.EventBusSubscriber.Bus.MOD, value = Dist.CLIENT)
 public class ClientEvents {
     @SubscribeEvent
-    private static void onRegisterEntityRenderer(EntityRenderersEvent.RegisterRenderers event) {
+    public static void onRegisterEntityRenderer(EntityRenderersEvent.RegisterRenderers event) {
         event.registerEntityRenderer(MediaPlayerForge.video.get(), VideoEntityRenderer::new);
     }
 
     @Mod.EventBusSubscriber(modid = MOD_ID, bus = Mod.EventBusSubscriber.Bus.FORGE, value = Dist.CLIENT)
-    private static class Forge {
+    public static class Forge {
         @SubscribeEvent
-        private static void onRegisterClientCommands(RegisterClientCommandsEvent event) {
+        public static void onRegisterClientCommands(RegisterClientCommandsEvent event) {
             event.getDispatcher().register(literal("mediaplayer").then(literal("video").executes(c -> {
                 var f = NativeFileDialog.openFileDialog(getText("media.command.open"), "D:/", getText("media.command.video"), "*.*");
                 if (f != null) {

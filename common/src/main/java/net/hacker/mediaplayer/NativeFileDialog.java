@@ -1,29 +1,43 @@
 package net.hacker.mediaplayer;
 
+import org.lwjgl.PointerBuffer;
 import org.lwjgl.system.MemoryStack;
 import org.lwjgl.util.tinyfd.TinyFileDialogs;
 
 import java.io.File;
-import java.util.Arrays;
+import java.nio.ByteBuffer;
 
 public class NativeFileDialog {
     public static File openFileDialog(String title, String path, String filterDescription, String... filters) {
-        String result;
-        if (System.getProperty("os.name").startsWith("Windows")) {
-            path = path.replace("/", "\\");
-        } else {
-            path = path.replace("\\", "/");
-        }
-        if (filters.length != 0) {
-            try (var stack = MemoryStack.stackPush()) {
-                var pointerBuffer = stack.mallocPointer(filters.length);
-                Arrays.stream(filters).forEach(it -> pointerBuffer.put(stack.UTF8(it)));
-                pointerBuffer.flip();
-                result = TinyFileDialogs.tinyfd_openFileDialog(title, path, pointerBuffer, filterDescription, false);
+        try (MemoryStack stack = MemoryStack.stackPush()) {
+            // 准备过滤器
+            PointerBuffer filterPatterns = null;
+            if (filters != null && filters.length > 0) {
+                filterPatterns = stack.mallocPointer(filters.length);
+                for (String filter : filters) {
+                    ByteBuffer filterBuffer = stack.UTF8(filter);
+                    filterPatterns.put(filterBuffer);
+                }
+                filterPatterns.flip();
             }
-        } else {
-            result = TinyFileDialogs.tinyfd_openFileDialog(title, path, null, filterDescription, false);
+
+            // 调用原生文件对话框
+            String result = TinyFileDialogs.tinyfd_openFileDialog(
+                    title,
+                    path,
+                    filterPatterns,
+                    filterDescription,
+                    false
+            );
+
+            // 处理结果
+            if (result != null) {
+                return new File(result);
+            }
+            return null;
+        } catch (Exception e) {
+            MediaPlayer.LOGGER.error("Failed to open native file dialog", e);
+            return null;
         }
-        return result == null ? null : new File(result);
     }
 }

@@ -72,28 +72,44 @@ void VideoDecoder::Release(JNIEnv*, jclass, const jlong ptr)
 VideoDecoder::VideoDecoder(const std::string& url, const AVHWDeviceType hw_type, GLuint tex)
 {
 	format = avformat_alloc_context();
+	if (!format) throw std::runtime_error("Failed to allocate AVFormatContext");
+
 	ThrowOnFailed(avformat_open_input(&format, url.data(), nullptr, nullptr));
 	ThrowOnFailed(avformat_find_stream_info(format, nullptr));
+
 	index = av_find_best_stream(format, AVMEDIA_TYPE_VIDEO, -1, -1, nullptr, 0);
-	if (index < 0) av_log(nullptr, AV_LOG_ERROR, "Can't find video stream in input file\n");
-	auto origin_par = format->streams[index]->codecpar;
-	codec = const_cast<AVCodec*>(avcodec_find_decoder(origin_par->codec_id));
+	if (index < 0) throw std::runtime_error("Can't find video stream in input file");
+
+	const AVCodecParameters* origin_par = format->streams[index]->codecpar;
+	codec = avcodec_find_decoder(origin_par->codec_id);
+	if (!codec) throw std::runtime_error("No suitable codec found");
+
 	context = avcodec_alloc_context3(codec);
+	if (!context) throw std::runtime_error("Failed to allocate codec context");
+
 	type = hw_type;
-	AVHWDeviceContext* device = nullptr;
-	if (hw_type != AV_HWDEVICE_TYPE_NONE) {
-		if (!Support(codec, type)) throw std::exception("error");
+
+	if (type != AV_HWDEVICE_TYPE_NONE) {
+		if (!Support(codec, type)) throw std::runtime_error("HW not supported");
 		AVBufferRef* hw_device_ctx;
 		ThrowOnFailed(av_hwdevice_ctx_create(&hw_device_ctx, type, nullptr, nullptr, 0));
 		context->hw_device_ctx = hw_device_ctx;
-		device = (AVHWDeviceContext*)hw_device_ctx->data;
 	}
-	if (avcodec_parameters_to_context(context, origin_par) < 0) av_log(nullptr, AV_LOG_ERROR, "Error initializing the decoder context.\n");
+
+	if (avcodec_parameters_to_context(context, origin_par) < 0)
+		throw std::runtime_error("Error initializing the decoder context");
+
 	ThrowOnFailed(avcodec_open2(context, codec, nullptr));
+
 	packet = av_packet_alloc();
+	if (!packet) throw std::runtime_error("Failed to allocate packet");
+
 	frame = av_frame_alloc();
-	vframe = std::make_unique<VideoFrame>(type, device, tex);
+	if (!frame) throw std::runtime_error("Failed to allocate frame");
+
+	vframe = std::make_unique<VideoFrame>(type, (AVHWDeviceContext*)(context->hw_device_ctx ? context->hw_device_ctx->data : nullptr), tex);
 }
+
 
 VideoDecoder::~VideoDecoder()
 {

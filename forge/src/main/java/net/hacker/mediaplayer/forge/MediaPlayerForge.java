@@ -10,11 +10,10 @@ import net.minecraftforge.registries.DeferredRegister;
 import net.minecraftforge.registries.ForgeRegistries;
 import net.minecraftforge.registries.RegistryObject;
 
-import static net.hacker.mediaplayer.MediaPlayer.MOD_ID;
 
-@Mod(MOD_ID)
+@Mod(MediaPlayer.MOD_ID)
 public class MediaPlayerForge {
-    public static final DeferredRegister<EntityType<?>> ENTITY_TYPES = DeferredRegister.create(ForgeRegistries.ENTITY_TYPES, MOD_ID);
+    public static final DeferredRegister<EntityType<?>> ENTITY_TYPES = DeferredRegister.create(ForgeRegistries.ENTITY_TYPES, MediaPlayer.MOD_ID);
     public static RegistryObject<EntityType<VideoEntity>> video;
 
     public MediaPlayerForge() {

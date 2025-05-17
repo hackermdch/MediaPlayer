@@ -34,8 +34,13 @@ public class VideoEntityRenderer extends EntityRenderer<VideoEntity> {
     @Override
     public void render(VideoEntity entity, float entityYaw, float partialTicks,
                        PoseStack poseStack, MultiBufferSource bufferSource, int packedLight) {
+        // 如果decoder为null，不进行任何渲染
+        if (entity.decoder == null) {
+            return;
+        }
+        
         // 1. 播放音频（仅首次）
-        if (entity.decoder != null && !entity.playing) {
+        if (!entity.playing) {
             entity.playing = true;
             var audioData = entity.decoder.audio.decode(true);
             Minecraft.getInstance()
@@ -44,10 +49,8 @@ public class VideoEntityRenderer extends EntityRenderer<VideoEntity> {
         }
 
         // 2. 更新视频帧
-        if (entity.decoder != null) {
-            entity.decoder.fetch();
-        }
-        VideoFrame frame = entity.decoder != null ? entity.decoder.frame : null;
+        entity.decoder.fetch();
+        VideoFrame frame = entity.decoder.frame;
 
         // 3. 获取顶点缓冲和当前矩阵/法线
         VertexConsumer consumer = bufferSource.getBuffer(VideoRenderType.create(frame));

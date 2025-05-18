@@ -11,7 +11,7 @@ extern "C" {
 }
 module Media;
 
-#define ThrowOnFailed(X) if((X)<0) throw (X)
+#define ThrowOnFailed(X) if((X)<0) throw -1
 
 import Resource;
 
@@ -24,11 +24,11 @@ AudioDecoder::AudioDecoder(const std::string& url)
 	ThrowOnFailed(avformat_open_input(&format, url.data(), nullptr, nullptr));
 	ThrowOnFailed(avformat_find_stream_info(format, nullptr));
 	index = av_find_best_stream(format, AVMEDIA_TYPE_AUDIO, -1, -1, nullptr, 0);
-	if (index < 0) av_log(nullptr, AV_LOG_ERROR, "Can't find audio stream in input file\n");
+	if (index < 0) throw std::exception("Can't find audio stream in input file");
 	auto origin_par = format->streams[index]->codecpar;
 	codec = const_cast<AVCodec*>(avcodec_find_decoder(origin_par->codec_id));
 	context = avcodec_alloc_context3(codec);
-	if (avcodec_parameters_to_context(context, origin_par) < 0) av_log(nullptr, AV_LOG_ERROR, "Error initializing the decoder context.\n");
+	if (avcodec_parameters_to_context(context, origin_par) < 0) throw std::exception("Error initializing the decoder context");
 	ThrowOnFailed(avcodec_open2(context, codec, nullptr));
 	packet = av_packet_alloc();
 	frame = av_frame_alloc();
@@ -119,6 +119,11 @@ AudioDecoder* AudioDecoder::Open(JNIEnv* env, jobject, const jstring path)
 {
 	try {
 		return new AudioDecoder(toString(path));
+	}
+	catch (std::exception& e)
+	{
+		Throw(env, e.what());
+		return nullptr;
 	}
 	catch (...)
 	{

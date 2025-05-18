@@ -5,6 +5,7 @@ import net.minecraft.client.Minecraft;
 import java.io.File;
 import java.lang.ref.Cleaner;
 
+import static net.hacker.mediaplayer.MediaPlayer.LOGGER;
 import static org.lwjgl.glfw.GLFW.glfwGetTime;
 
 public final class VideoDecoder implements AutoCloseable {
@@ -23,7 +24,8 @@ public final class VideoDecoder implements AutoCloseable {
         AudioDecoder a = null;
         try {
             a = new AudioDecoder(path);
-        } catch (Throwable ignore) {
+        } catch (Throwable e) {
+            LOGGER.warn("Failed to create audio decoder", e);
         }
         audio = a;
         frame = new VideoFrame();

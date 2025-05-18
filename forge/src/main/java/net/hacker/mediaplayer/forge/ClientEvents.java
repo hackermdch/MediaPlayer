@@ -2,11 +2,13 @@ package net.hacker.mediaplayer.forge;
 
 import net.hacker.mediaplayer.*;
 import net.minecraft.client.Minecraft;
+import net.minecraft.commands.Commands;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.client.event.EntityRenderersEvent;
 import net.neoforged.neoforge.client.event.RegisterClientCommandsEvent;
+import net.neoforged.neoforge.server.command.EnumArgument;
 
 import static net.hacker.mediaplayer.MediaPlayer.MOD_ID;
 import static net.hacker.mediaplayer.MediaPlayer.getText;
@@ -34,7 +36,18 @@ public class ClientEvents {
                     });
                 }
                 return 0;
-            })).then(literal("audio").executes(c -> {
+            }).then(Commands.argument("hardware", EnumArgument.enumArgument(DeviceType.class)).executes(c -> {
+                var f = NativeFileDialog.openFileDialog(getText("media.command.open"), "D:/", getText("media.command.video"), "*.*");
+                if (f != null) {
+                    assert Minecraft.getInstance().level != null;
+                    Minecraft.getInstance().level.entitiesForRendering().forEach(e -> {
+                        if (e instanceof VideoEntity v && v.decoder == null) {
+                            v.decoder = new VideoDecoder(f.getAbsolutePath(), c.getArgument("hardware", DeviceType.class));
+                        }
+                    });
+                }
+                return 0;
+            }))).then(literal("audio").executes(c -> {
                 var f = NativeFileDialog.openFileDialog(getText("media.command.open"), "D:/", getText("media.command.audio"), "*.*");
                 if (f != null) {
                     try (var a = new AudioDecoder(f.getAbsolutePath())) {

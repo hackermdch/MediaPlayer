@@ -9,7 +9,7 @@ version = "${version}"
 displayName = "MediaPlayer"
 authors = "hackermdch"
 description = '''
-play video
+play media files in Minecraft
 '''
 
 [[mixins]]
@@ -20,14 +20,13 @@ config = "mediaplayer.mixins.json"
 [[dependencies.mediaplayer]]
 modId = "neoforge"
 type = "required"
-versionRange = "[21,)"
+versionRange = "[21.1,)"
 ordering = "NONE"
 side = "BOTH"
 
 [[dependencies.mediaplayer]]
 modId = "minecraft"
 type = "required"
-versionRange = "[1.21,1.22)"
+versionRange = "[1.21.1,1.22)"
 ordering = "NONE"
 side = "BOTH"
-

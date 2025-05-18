@@ -1,12 +1,10 @@
 module;
 #include <jni.h>
 #include <string>
-#include <memory>
 #include <vector>
 #include <tuple>
 #include <d3d12.h>
 #include <d3d11_4.h>
-#include <vector>
 #include <wrl.h>
 #include <ffnvcodec/dynlink_loader.h>
 #include "jnipp.h"
@@ -24,7 +22,7 @@ namespace MediaPlayer
 {
 	inline void Throw(JNIEnv* env, const char* msg)
 	{
-		env->ThrowNew(env->FindClass("com/sun/jdi/NativeMethodException"), msg);
+		env->ThrowNew(env->FindClass("java/lang/RuntimeException"), msg);
 	}
 
 	template <typename F> requires std::is_function_v<std::remove_pointer_t<F>>
@@ -106,7 +104,7 @@ export namespace MediaPlayer
 
 	class VideoDecoder final
 	{
-		std::unique_ptr<VideoFrame> vframe;
+		VideoFrame* vframe;
 		AVFormatContext* format;
 		AVCodec* codec;
 		AVCodecContext* context;

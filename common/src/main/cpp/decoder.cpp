@@ -13,7 +13,7 @@ extern "C" {
 }
 module Media;
 
-#define ThrowOnFailed(X) if((X)<0) throw (X)
+#define ThrowOnFailed(X) if((X)<0) throw -1
 
 using namespace jni;
 using namespace MediaPlayer;
@@ -52,6 +52,11 @@ VideoDecoder* VideoDecoder::Open(JNIEnv* env, jobject obj, const jstring path, c
 		while (ptr->Decode() < 0)(void)0;
 		return ptr;
 	}
+	catch (std::exception& e)
+	{
+		Throw(env, e.what());
+		return nullptr;
+	}
 	catch (...)
 	{
 		Throw(env, "Open failed");
@@ -75,28 +80,29 @@ VideoDecoder::VideoDecoder(const std::string& url, const AVHWDeviceType hw_type,
 	ThrowOnFailed(avformat_open_input(&format, url.data(), nullptr, nullptr));
 	ThrowOnFailed(avformat_find_stream_info(format, nullptr));
 	index = av_find_best_stream(format, AVMEDIA_TYPE_VIDEO, -1, -1, nullptr, 0);
-	if (index < 0) av_log(nullptr, AV_LOG_ERROR, "Can't find video stream in input file\n");
+	if (index < 0) throw std::exception("Can't find video stream in input file");
 	auto origin_par = format->streams[index]->codecpar;
 	codec = const_cast<AVCodec*>(avcodec_find_decoder(origin_par->codec_id));
 	context = avcodec_alloc_context3(codec);
 	type = hw_type;
 	AVHWDeviceContext* device = nullptr;
 	if (hw_type != AV_HWDEVICE_TYPE_NONE) {
-		if (!Support(codec, type)) throw std::exception("error");
+		if (!Support(codec, type)) throw std::exception("Not support hardware");
 		AVBufferRef* hw_device_ctx;
 		ThrowOnFailed(av_hwdevice_ctx_create(&hw_device_ctx, type, nullptr, nullptr, 0));
 		context->hw_device_ctx = hw_device_ctx;
 		device = (AVHWDeviceContext*)hw_device_ctx->data;
 	}
-	if (avcodec_parameters_to_context(context, origin_par) < 0) av_log(nullptr, AV_LOG_ERROR, "Error initializing the decoder context.\n");
+	if (avcodec_parameters_to_context(context, origin_par) < 0) throw std::exception("Error initializing the decoder context");
 	ThrowOnFailed(avcodec_open2(context, codec, nullptr));
 	packet = av_packet_alloc();
 	frame = av_frame_alloc();
-	vframe = std::make_unique<VideoFrame>(type, device, tex);
+	vframe = new VideoFrame(type, device, tex);
 }
 
 VideoDecoder::~VideoDecoder()
 {
+	delete vframe;
 	av_frame_free(&frame);
 	av_packet_free(&packet);
 	avcodec_free_context(&context);
